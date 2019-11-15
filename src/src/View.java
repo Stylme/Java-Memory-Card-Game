@@ -5,20 +5,17 @@
  */
 package src;
 
-import com.sun.org.apache.bcel.internal.generic.AALOAD;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
 import java.util.TimerTask;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.Timer;
+import java.util.Timer;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -29,7 +26,11 @@ public class View extends javax.swing.JFrame {
     private int vidas = 6;
     private int aciertos = 0;
 
-    private int flippedCards = 0;
+    private int flippedCards = 1;
+
+    private Card fSelected;
+
+    private ArrayList<Card> frontSideCards = new ArrayList<>();
 
     private ArrayList<Card> cards = new ArrayList<>();
     private ArrayList<JLabel> cartasTablero = new ArrayList<>();
@@ -59,7 +60,13 @@ public class View extends javax.swing.JFrame {
     }
 
     public void iniciarTablero() {
-
+        flippedCards = 1;
+        frontSideCards = new ArrayList<>();
+        fSelected = null;
+        aciertos = 0;
+        vidas = 6;
+        aciertosLabel.setText(String.valueOf(aciertos));
+        vidasLabel.setText(String.valueOf(vidas));
         ImageIcon icon = new ImageIcon("Back.jpg");
         ImageIcon backIcon = new ImageIcon(icon.getImage().getScaledInstance(j00.getWidth(),
                 j00.getHeight(), Image.SCALE_SMOOTH));
@@ -170,7 +177,6 @@ public class View extends javax.swing.JFrame {
         int height = screenSize.height - 50;
         int width = screenSize.width / 3;
         setLocation(width, 0);
-
         iniciarTablero();
     }
 
@@ -253,10 +259,25 @@ public class View extends javax.swing.JFrame {
         });
 
         j10.setText("jLabel5");
+        j10.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                j10MouseClicked(evt);
+            }
+        });
 
         j20.setText("jLabel5");
+        j20.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                j20MouseClicked(evt);
+            }
+        });
 
         j11.setText("jLabel5");
+        j11.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                j11MouseClicked(evt);
+            }
+        });
 
         j00.setText("jLabel5");
         j00.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -266,20 +287,60 @@ public class View extends javax.swing.JFrame {
         });
 
         j21.setText("jLabel5");
+        j21.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                j21MouseClicked(evt);
+            }
+        });
 
         j02.setText("jLabel5");
+        j02.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                j02MouseClicked(evt);
+            }
+        });
 
         j01.setText("jLabel5");
+        j01.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                j01MouseClicked(evt);
+            }
+        });
 
         j22.setText("jLabel5");
+        j22.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                j22MouseClicked(evt);
+            }
+        });
 
         j12.setText("jLabel5");
+        j12.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                j12MouseClicked(evt);
+            }
+        });
 
         j13.setText("jLabel5");
+        j13.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                j13MouseClicked(evt);
+            }
+        });
 
         j23.setText("jLabel5");
+        j23.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                j23MouseClicked(evt);
+            }
+        });
 
         j03.setText("jLabel5");
+        j03.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                j03MouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -375,42 +436,218 @@ public class View extends javax.swing.JFrame {
         for (int i = 0; i < cards.size(); i++) {
             cards.get(i).showFrontSide();
         }
-        Timer a;
-        a = new Timer().schedule(new TimerTask() {
+        new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 for (int i = 0; i < cards.size(); i++) {
-                    cards.get(i).showBackSide();
+                    if (!(frontSideCards.contains(cards.get(i)))) {
+                        cards.get(i).showBackSide();
+                    }
                 }
             }
-        });
+        }, 5000);
 
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    public void clickedCard() {
-        /*
-         for (int i = 0; i < cards.size(); i++) {
-         cards.get(i).labelMouseClicked(java.awt.event.MouseEvent evt);
-         }*/
+    public void verifyCard(Card a) {
+        if (fSelected != null) {
+            if (!(fSelected.equals(a))) {
+                if (!(frontSideCards.contains(a) || frontSideCards.contains(fSelected))) {
+                    if (!(fSelected.getFrontSide().equals(a.getFrontSide()))) {
+                        JOptionPane.showMessageDialog(null, "Pareja incorrecta");
+                        fSelected.showBackSide();
+                        a.showBackSide();
+                        --vidas;
+                    } else {
+                        ++aciertos;
+                        frontSideCards.add(a);
+                        frontSideCards.add(fSelected);
+                    }
+                } else {
+                    if (frontSideCards.contains(a) && frontSideCards.contains(fSelected)) {
+                        JOptionPane.showMessageDialog(null, "Cartas destapadas anteriormente");
+                    }else if (frontSideCards.contains(a))
+                     {
+
+                        fSelected.showBackSide();
+                    } else{
+
+                        a.showBackSide();
+                    }
+                }
+
+            } else {
+                if (!(frontSideCards.contains(a) || frontSideCards.contains(fSelected))) {
+                    fSelected.showBackSide();
+                }
+            }
+            aciertosLabel.setText(String.valueOf(aciertos));
+            vidasLabel.setText(String.valueOf(vidas));
+            if (aciertos == 6) {
+                JOptionPane.showMessageDialog(null, "Felicidades ha ganado la partida");
+                iniciarTablero();
+            } else if (vidas == 0) {
+                JOptionPane.showMessageDialog(null, "Ha perdido, intentelo de nuevo");
+                iniciarTablero();
+            }
+        }
     }
 
     private void j00MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_j00MouseClicked
-        /* TODO add your handling code here:
-         if (flippedCards == 2) {
-         int d = 
-         if (d == -1) {
-         vidas--;
-         showBackSide();
-         } else if (d == 0) {
-         aciertos++;
-         }
-         } else {
-         flippedCards++;
-         showFrontSide();
-         }
-         */
+        cards.get(0).showFrontSide();
+        verifyCard(cards.get(0));
+        if (!(flippedCards == 2)) {
+            fSelected = cards.get(0);
+        } else {
+            fSelected = null;
+            flippedCards = 0;
+        }
+        flippedCards++;
     }//GEN-LAST:event_j00MouseClicked
+
+    private void j01MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_j01MouseClicked
+        // TODO add your handling code here:
+        cards.get(1).showFrontSide();
+        verifyCard(cards.get(1));
+        if (!(flippedCards == 2)) {
+            fSelected = cards.get(1);
+        } else {
+            fSelected = null;
+            flippedCards = 0;
+        }
+        flippedCards++;
+    }//GEN-LAST:event_j01MouseClicked
+
+    private void j02MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_j02MouseClicked
+        // TODO add your handling code here:
+        cards.get(2).showFrontSide();
+        verifyCard(cards.get(2));
+        if (!(flippedCards == 2)) {
+            fSelected = cards.get(2);
+        } else {
+            fSelected = null;
+            flippedCards = 0;
+        }
+        flippedCards++;
+    }//GEN-LAST:event_j02MouseClicked
+
+    private void j03MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_j03MouseClicked
+        // TODO add your handling code here:
+        cards.get(3).showFrontSide();
+        verifyCard(cards.get(3));
+        if (!(flippedCards == 2)) {
+            fSelected = cards.get(3);
+        } else {
+            fSelected = null;
+            flippedCards = 0;
+        }
+        flippedCards++;
+    }//GEN-LAST:event_j03MouseClicked
+
+    private void j10MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_j10MouseClicked
+        // TODO add your handling code here:
+        cards.get(4).showFrontSide();
+        verifyCard(cards.get(4));
+        if (!(flippedCards == 2)) {
+            fSelected = cards.get(4);
+        } else {
+            fSelected = null;
+            flippedCards = 0;
+        }
+        flippedCards++;
+    }//GEN-LAST:event_j10MouseClicked
+
+    private void j11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_j11MouseClicked
+        // TODO add your handling code here:
+        cards.get(5).showFrontSide();
+        verifyCard(cards.get(5));
+        if (!(flippedCards == 2)) {
+            fSelected = cards.get(5);
+        } else {
+            fSelected = null;
+            flippedCards = 0;
+        }
+        flippedCards++;
+    }//GEN-LAST:event_j11MouseClicked
+
+    private void j12MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_j12MouseClicked
+        // TODO add your handling code here:
+        cards.get(6).showFrontSide();
+        verifyCard(cards.get(6));
+        if (!(flippedCards == 2)) {
+            fSelected = cards.get(6);
+        } else {
+            fSelected = null;
+            flippedCards = 0;
+        }
+        flippedCards++;
+    }//GEN-LAST:event_j12MouseClicked
+
+    private void j13MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_j13MouseClicked
+        // TODO add your handling code here:
+        cards.get(7).showFrontSide();
+        verifyCard(cards.get(7));
+        if (!(flippedCards == 2)) {
+            fSelected = cards.get(7);
+        } else {
+            fSelected = null;
+            flippedCards = 0;
+        }
+        flippedCards++;
+    }//GEN-LAST:event_j13MouseClicked
+
+    private void j20MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_j20MouseClicked
+        // TODO add your handling code here:
+        cards.get(8).showFrontSide();
+        verifyCard(cards.get(8));
+        if (!(flippedCards == 2)) {
+            fSelected = cards.get(8);
+        } else {
+            fSelected = null;
+            flippedCards = 0;
+        }
+        flippedCards++;
+    }//GEN-LAST:event_j20MouseClicked
+
+    private void j21MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_j21MouseClicked
+        // TODO add your handling code here:
+        cards.get(9).showFrontSide();
+        verifyCard(cards.get(9));
+        if (!(flippedCards == 2)) {
+            fSelected = cards.get(9);
+        } else {
+            fSelected = null;
+            flippedCards = 0;
+        }
+        flippedCards++;
+    }//GEN-LAST:event_j21MouseClicked
+
+    private void j22MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_j22MouseClicked
+        // TODO add your handling code here:
+        cards.get(10).showFrontSide();
+        verifyCard(cards.get(10));
+        if (!(flippedCards == 2)) {
+            fSelected = cards.get(10);
+        } else {
+            fSelected = null;
+            flippedCards = 0;
+        }
+        flippedCards++;
+    }//GEN-LAST:event_j22MouseClicked
+
+    private void j23MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_j23MouseClicked
+        // TODO add your handling code here:
+        cards.get(11).showFrontSide();
+        verifyCard(cards.get(11));
+        if (!(flippedCards == 2)) {
+            fSelected = cards.get(11);
+        } else {
+            fSelected = null;
+            flippedCards = 0;
+        }
+        flippedCards++;
+    }//GEN-LAST:event_j23MouseClicked
 
     /**
      * @param args the command line arguments
@@ -421,6 +658,7 @@ public class View extends javax.swing.JFrame {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
+
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
